@@ -1,17 +1,18 @@
 #include "../include/color.hpp"
-#include <arpa/inet.h>
 #include <fstream>
-#include <ifaddrs.h>
+#include <ifaddrs.h> // struct ifaddrs
 #include <iomanip>
 #include <iostream>
 #include <map>
-#include <netdb.h>
-#include <netinet/in.h>
+#include <netdb.h> // define NI_MAXHOST 1025
 #include <string>
+#include <sys/utsname.h> // struct utsname, uname
+#include <unistd.h>      // getlogin_r, gethostname
+
+#ifdef __FreeBSD__ // on Linux, already include in netdb.h
+#include <netinet/in.h>
 #include <sys/socket.h>
-#include <sys/types.h>
-#include <sys/utsname.h>
-#include <unistd.h>
+#endif
 
 std::string getUsername();
 std::string getHostname();
@@ -135,11 +136,12 @@ std::string getDistro() {
 }
 
 std::string getCPUInfo() {
+  std::string file_path;
 #ifdef __FreeBSD__
-  std::string file_path = "/compat/linux/proc/cpuinfo";
+  file_path = "/compat/linux/proc/cpuinfo";
 #endif
 #ifdef __linux__
-  std::string file_path = "/proc/cpuinfo";
+  file_path = "/proc/cpuinfo";
 #endif
 
   std::ifstream cpuinfo_file(file_path);
@@ -171,12 +173,12 @@ std::string getCPUInfo() {
 }
 
 std::string getMemoryInfo() {
-
+  std::string file_path;
 #ifdef __FreeBSD__
-  std::string file_path = "/compat/linux/proc/meminfo";
+  file_path = "/compat/linux/proc/meminfo";
 #endif
 #ifdef __linux__
-  std::string file_path = "/proc/meminfo";
+  file_path = "/proc/meminfo";
 #endif
 
   std::ifstream meminfo_file(file_path);
